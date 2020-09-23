@@ -4,7 +4,17 @@ using UnityEngine;
 
 public class ChunkRenderer : MonoBehaviour
 {
-    public void GenerateChunk()
+    private MeshFilter MeshFilter;
+    private MeshRenderer MeshRenderer;
+
+    private void Awake()
+    {
+        MeshFilter = gameObject.AddComponent<MeshFilter>();
+        MeshFilter.sharedMesh = new Mesh();
+        MeshRenderer = gameObject.AddComponent<MeshRenderer>();
+    }
+
+    public void GenerateMesh()
     {
 
     }

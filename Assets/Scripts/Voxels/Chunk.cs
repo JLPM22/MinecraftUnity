@@ -5,12 +5,14 @@ using UnityEngine;
 [RequireComponent(typeof(ChunkRenderer))]
 public class Chunk : MonoBehaviour
 {
-    public const int ChunkSize = 16;
-    public const int VerticalChunks = 16;
+    public static readonly Vector3Int ChunkSize = new Vector3Int(16, 16, 16);
+    public static readonly int VerticalChunks = 16;
 
-    private Block[,,] BlockID = new Block[ChunkSize, ChunkSize, ChunkSize];
+    public Block[,,] Voxels = new Block[ChunkSize.x, ChunkSize.y, ChunkSize.z];
 
     private ChunkRenderer ChunkRenderer;
+
+    public bool Delete;
 
     private void Awake()
     {
@@ -19,13 +21,21 @@ public class Chunk : MonoBehaviour
 
     public void SetBlock(int x, int y, int z, Block block)
     {
-        BlockID[x, y, z] = block;
+        Voxels[x, y, z] = block;
         ChunkRenderer.RegenerateVoxel(x, y, z);
     }
 
     public Block GetBlock(int x, int y, int z)
     {
-        return BlockID[x, y, z];
+        return Voxels[x, y, z];
+    }
+
+    private void LateUpdate()
+    {
+        if (Delete)
+        {
+            Destroy(gameObject);
+        }
     }
 }
 
