@@ -1,16 +1,30 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class ChunkManager : MonoBehaviour
 {
     public static ChunkManager Instance;
 
+    [Header("Player")]
     public GameObject Player;
     public int Radius;
 
-    private Dictionary<Vector3Int, Chunk> Chunks = new Dictionary<Vector3Int, Chunk>();
+    [Header("Terrain")]
+    public float Scale = 50.0f;
+    [Tooltip("Number of functions adding detail (each one is less influent than the previous one)")]
+    public int Octaves = 6;
+    [Tooltip("Amplitude magnification factor of each octave (exponential)")]
+    [Range(0.0f, 1.0f)]
+    public float Persistance = 0.5f;
+    [Tooltip("Frequency magnification factor of each octave (exponential)")]
+    public float Lacunarity = 2.0f;
+    public int Seed;
 
+    private Dictionary<Vector3Int, Chunk> Chunks = new Dictionary<Vector3Int, Chunk>();
     private Vector2Int LastPlayerChunk = new Vector2Int(int.MaxValue, int.MaxValue);
 
     private void Awake()
@@ -84,9 +98,35 @@ public class ChunkManager : MonoBehaviour
         newChunk.transform.SetParent(transform); // Chunk is a child of ChunkManager
                                                  // Add to Dictionary
         Chunks.Add(index, c);
-        // Procedural Generation
-        ProceduralGeneration.GenerateChunk(c);
-        // Mesh
-        renderer.RegenerateMesh();
+        // Procedural Generation & Mesh
+        ProceduralGeneration.AsyncGenerateChunk(c, () => renderer.RegenerateMesh());
+    }
+
+    // Debug Purposes
+    public void RegenerateAll()
+    {
+        foreach (Chunk c in Chunks.Values)
+        {
+            ChunkRenderer renderer = c.GetComponent<ChunkRenderer>();
+            // Procedural Generation & Mesh
+            ProceduralGeneration.AsyncGenerateChunk(c, () => renderer.RegenerateMesh());
+        }
     }
 }
+
+// Debug Purposes
+#if UNITY_EDITOR
+[CustomEditor(typeof(ChunkManager))]
+public class ChunkManagerEditor : Editor
+{
+    public override void OnInspectorGUI()
+    {
+        DrawDefaultInspector();
+        EditorGUILayout.Space();
+        if (GUILayout.Button("Regenerate"))
+        {
+            ((ChunkManager)target).RegenerateAll();
+        }
+    }
+}
+#endif

@@ -171,7 +171,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Player: {fileID: 313362186}
-  Radius: 2
+  Radius: 5
+  Scale: 50
+  Octaves: 6
+  Persistance: 0.5
+  Lacunarity: 2
+  Seed: 0
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0

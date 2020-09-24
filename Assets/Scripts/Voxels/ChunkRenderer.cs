@@ -19,6 +19,7 @@ public class ChunkRenderer : MonoBehaviour
     private int NumberCubes = 0;
 
     // Async Variables
+    private object RegenerateLock = new object();
     private bool Regenerate;
     private bool Regenerating;
     private bool RegenerationComplete;
@@ -38,41 +39,46 @@ public class ChunkRenderer : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (RegenerationComplete)
+        lock (RegenerateLock)
         {
-            RegenerationComplete = false;
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-            // Assign Vertices & Triangles to the Mesh
-            MeshFilter.sharedMesh.SetVertices(Vertices);
-            MeshFilter.sharedMesh.SetNormals(Normals);
-            MeshFilter.sharedMesh.SetTriangles(Triangles, 0);
-            MeshFilter.sharedMesh.SetUVs(0, UVs);
-            MeshFilter.sharedMesh.RecalculateBounds();
-            sw.Stop();
-            UnityEngine.Debug.Log("TIME: " + sw.ElapsedMilliseconds);
-        }
+            if (RegenerationComplete)
+            {
+                RegenerationComplete = false;
+                // Assign Vertices & Triangles to the Mesh
+                MeshFilter.sharedMesh.Clear();
+                MeshFilter.sharedMesh.SetVertices(Vertices);
+                MeshFilter.sharedMesh.SetNormals(Normals);
+                MeshFilter.sharedMesh.SetTriangles(Triangles, 0);
+                MeshFilter.sharedMesh.SetUVs(0, UVs);
+                MeshFilter.sharedMesh.RecalculateBounds();
+            }
 
-        // Regenerate
-        if (Regenerate && !Regenerating)
-        {
-            Regenerate = false;
-            Regenerating = true;
-            Thread thread = new Thread(AsyncRegenerateMesh);
-            thread.Start();
+            // Regenerate
+            if (Regenerate && !Regenerating)
+            {
+                Regenerate = false;
+                Regenerating = true;
+                Thread thread = new Thread(AsyncRegenerateMesh);
+                thread.Start();
+            }
         }
     }
 
     public void RegenerateMesh()
     {
-        Regenerate = true;
+        lock (RegenerateLock)
+        {
+            Regenerate = true;
+        }
     }
 
     private void AsyncRegenerateMesh()
     {
         // Clear structures
         Vertices.Clear();
+        Normals.Clear();
         Triangles.Clear();
+        UVs.Clear();
         NumberCubes = 0;
 
         // Create Vertices & Triangles
