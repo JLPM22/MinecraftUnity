@@ -4,12 +4,19 @@ using UnityEngine;
 
 public class ChunkManager : MonoBehaviour
 {
+    public static ChunkManager Instance;
+
     public GameObject Player;
     public int Radius;
 
-    private Dictionary<Vector2Int, Chunk> Chunks = new Dictionary<Vector2Int, Chunk>();
+    private Dictionary<Vector3Int, Chunk> Chunks = new Dictionary<Vector3Int, Chunk>();
 
     private Vector2Int LastPlayerChunk = new Vector2Int(int.MaxValue, int.MaxValue);
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     private void Update()
     {
@@ -18,22 +25,28 @@ public class ChunkManager : MonoBehaviour
 
         if (chunkX != LastPlayerChunk.x || chunkZ != LastPlayerChunk.y)
         {
-            RemoveOldChunks();
+            RemoveOldChunks(chunkX, chunkZ);
             AddNewChunks(chunkX, chunkZ);
         }
 
         LastPlayerChunk = new Vector2Int(chunkX, chunkZ);
     }
 
-    private void RemoveOldChunks()
+    public Chunk GetChunk(int x, int y, int z)
     {
-        List<Vector2Int> toRemove = new List<Vector2Int>();
-        foreach (KeyValuePair<Vector2Int, Chunk> entry in Chunks)
+        return Chunks[new Vector3Int(x, y, z)];
+    }
+
+    private void RemoveOldChunks(int chunkX, int chunkZ)
+    {
+        List<Vector3Int> toRemove = new List<Vector3Int>();
+        foreach (KeyValuePair<Vector3Int, Chunk> entry in Chunks)
         {
             entry.Value.Delete = true;
-            toRemove.Add(entry.Key);
+            if (Mathf.Abs(entry.Key.x - chunkX) > Radius ||
+                Mathf.Abs(entry.Key.z - chunkZ) > Radius) toRemove.Add(entry.Key);
         }
-        foreach (Vector2Int index in toRemove) Chunks.Remove(index);
+        foreach (Vector3Int index in toRemove) Chunks.Remove(index);
     }
 
     private void AddNewChunks(int chunkX, int chunkZ)
@@ -42,36 +55,38 @@ public class ChunkManager : MonoBehaviour
         {
             for (int x = chunkX - Radius; x <= chunkX + Radius; ++x)
             {
-                Vector2Int index = new Vector2Int(x, z);
-                if (Chunks.TryGetValue(index, out Chunk c))
+                for (int y = 0; y < Chunk.NumberVerticalChunks; ++y)
                 {
-                    // Already exists
-                    c.Delete = false;
-                }
-                else
-                {
-                    // Create new chunk
-                    CreateChunk(index);
+                    Vector3Int index = new Vector3Int(x, y, z);
+                    if (Chunks.TryGetValue(index, out Chunk c))
+                    {
+                        // Already exists
+                        c.Delete = false;
+                    }
+                    else
+                    {
+                        // Create new chunk
+                        CreateChunk(index);
+                    }
                 }
             }
         }
     }
 
-    private void CreateChunk(Vector2Int index)
+    private void CreateChunk(Vector3Int index)
     {
-        for (int y = 0; y < Chunk.ChunkSize.y; ++y)
-        {
-            // Create GameObject, Componentes, and Position
-            GameObject newChunk = new GameObject(index.ToString());
-            Chunk c = gameObject.AddComponent<Chunk>();
-            ChunkRenderer renderer = gameObject.AddComponent<ChunkRenderer>();
-            gameObject.transform.position = Vector3.Scale(Chunk.ChunkSize, new Vector3Int(index.x, y, index.y));
-            // Add to Dictionary
-            Chunks.Add(index, c);
-            // Procedural Generation
-            ProceduralGeneration.GenerateChunk(c);
-            // Mesh
-            renderer.GenerateMesh();
-        }
+        // Create GameObject, Componentes, Position and Parent
+        GameObject newChunk = new GameObject(index.ToString());
+        Chunk c = newChunk.AddComponent<Chunk>();
+        c.Index = index;
+        ChunkRenderer renderer = newChunk.AddComponent<ChunkRenderer>();
+        newChunk.transform.position = Vector3.Scale(Chunk.ChunkSize, index);
+        newChunk.transform.SetParent(transform); // Chunk is a child of ChunkManager
+                                                 // Add to Dictionary
+        Chunks.Add(index, c);
+        // Procedural Generation
+        ProceduralGeneration.GenerateChunk(c);
+        // Mesh
+        renderer.RegenerateMesh();
     }
 }
