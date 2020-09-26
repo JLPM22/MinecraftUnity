@@ -172,9 +172,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Player: {fileID: 313362186}
   Radius: 5
-  Scale: 50
+  Scale: 80
   Octaves: 6
-  Persistance: 0.5
+  Persistance: 0.4
   Lacunarity: 2
   Seed: 0
 --- !u!1 &705507993
@@ -334,7 +334,7 @@ PrefabInstance:
     - target: {fileID: 1632305663636719370, guid: 1d20219dcd1dd0048abea0bf32a49e06,
         type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1632305663636719373, guid: 1d20219dcd1dd0048abea0bf32a49e06,
         type: 3}

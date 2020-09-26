@@ -26,6 +26,7 @@ public class ChunkManager : MonoBehaviour
 
     private Dictionary<Vector3Int, Chunk> Chunks = new Dictionary<Vector3Int, Chunk>();
     private Vector2Int LastPlayerChunk = new Vector2Int(int.MaxValue, int.MaxValue);
+    private List<Chunk> NotFinishedChunks = new List<Chunk>(); // Main Thread have to do some Unity functions (not thread-safe)
 
     private void Awake()
     {
@@ -44,6 +45,22 @@ public class ChunkManager : MonoBehaviour
         }
 
         LastPlayerChunk = new Vector2Int(chunkX, chunkZ);
+
+        // Finish chunk creation
+        for (int i = 0; i < NotFinishedChunks.Count; ++i)
+        {
+            Chunk c = NotFinishedChunks[i];
+            if (c.AsyncFinished)
+            {
+                // Physics
+                MeshCollider collider = c.gameObject.AddComponent<MeshCollider>();
+                c.gameObject.GetComponent<ChunkRenderer>().MeshCollider = collider;
+                collider.sharedMesh = c.gameObject.GetComponent<MeshFilter>().sharedMesh;
+                collider.cookingOptions = MeshColliderCookingOptions.None; // Fast recompute
+                // Remove to the pending chunks list
+                NotFinishedChunks.RemoveAt(i--);
+            }
+        }
     }
 
     public Chunk GetChunk(int x, int y, int z)
@@ -100,6 +117,8 @@ public class ChunkManager : MonoBehaviour
         Chunks.Add(index, c);
         // Procedural Generation & Mesh
         ProceduralGeneration.AsyncGenerateChunk(c, () => renderer.RegenerateMesh());
+        // Main Thread operations
+        NotFinishedChunks.Add(c);
     }
 
     // Debug Purposes

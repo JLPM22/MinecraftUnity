@@ -10,6 +10,7 @@ public class ChunkRenderer : MonoBehaviour
     private MeshFilter MeshFilter;
     private MeshRenderer MeshRenderer;
     private static Material VoxelMaterial;
+    public MeshCollider MeshCollider;
 
     // Reuse list to avoid garbage allocations
     private List<Vector3> Vertices = new List<Vector3>();
@@ -37,12 +38,15 @@ public class ChunkRenderer : MonoBehaviour
         Chunk = GetComponent<Chunk>();
     }
 
+    private static int LastSlowOperationFrame;
+
     private void LateUpdate()
     {
         lock (RegenerateLock)
         {
             if (RegenerationComplete)
             {
+                if (LastSlowOperationFrame == Time.frameCount) return;
                 RegenerationComplete = false;
                 // Assign Vertices & Triangles to the Mesh
                 MeshFilter.sharedMesh.Clear();
@@ -51,6 +55,8 @@ public class ChunkRenderer : MonoBehaviour
                 MeshFilter.sharedMesh.SetTriangles(Triangles, 0);
                 MeshFilter.sharedMesh.SetUVs(0, UVs);
                 MeshFilter.sharedMesh.RecalculateBounds();
+                if (MeshCollider != null) MeshCollider.sharedMesh = MeshFilter.sharedMesh;
+                LastSlowOperationFrame = Time.frameCount;
             }
 
             // Regenerate
@@ -89,7 +95,7 @@ public class ChunkRenderer : MonoBehaviour
                 for (int x = 0; x < Chunk.ChunkSize.x; ++x)
                 {
                     // Test if is visible the voxel itself, and if it's surrounded by opaque voxels
-                    if (Chunk.IsVisible(x, y, z) && IsOpaqueSurrounded(x, y, z)) DrawCube(x, y, z);
+                    if (Chunk.IsVisible(x, y, z) && IsOpaqueNotSurrounded(x, y, z)) DrawCube(x, y, z);
                 }
             }
         }
@@ -122,7 +128,7 @@ public class ChunkRenderer : MonoBehaviour
 
     // Return true if a voxel is visible, false if surrounded by other opaque voxels
     // Return true if it's a boundary voxel except for vertical voxels which are tested as interior voxels
-    private bool IsOpaqueSurrounded(int x, int y, int z)
+    private bool IsOpaqueNotSurrounded(int x, int y, int z)
     {
         // Test Boundary Voxel
         if (x + 1 >= Chunk.ChunkSize.x || x - 1 < 0 ||
@@ -136,13 +142,15 @@ public class ChunkRenderer : MonoBehaviour
         {
             if (Chunk.Index.y == Chunk.NumberVerticalChunks - 1) return true;
             Chunk c = ChunkManager.Instance.GetChunk(Chunk.Index.x, Chunk.Index.y + 1, Chunk.Index.z);
-            if (!c.IsOpaque(x, 0, z)) return true;
+            while (!c.Generated) ;
+            if (!c.IsOpaque(x, 0, z) || !Chunk.IsOpaque(x, y - 1, z)) return true;
         }
         else if (y - 1 < 0)
         {
             if (Chunk.Index.y == 0) return true;
             Chunk c = ChunkManager.Instance.GetChunk(Chunk.Index.x, Chunk.Index.y - 1, Chunk.Index.z);
-            if (!c.IsOpaque(x, Chunk.ChunkSize.y - 1, z)) return true;
+            while (!c.Generated) ;
+            if (!c.IsOpaque(x, Chunk.ChunkSize.y - 1, z) || !Chunk.IsOpaque(x, y + 1, z)) return true;
         }
         else if (!Chunk.IsOpaque(x, y + 1, z) ||
                  !Chunk.IsOpaque(x, y - 1, z))

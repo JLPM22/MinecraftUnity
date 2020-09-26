@@ -36,7 +36,7 @@ public class PlayerController : MonoBehaviour
             FallVelocity = 0.0f;
         }
 
-        CharacterController.Move(new Vector3(horizontal, -FallVelocity, vertical) * Time.deltaTime * Speed);
+        CharacterController.Move(transform.TransformVector(new Vector3(horizontal, -FallVelocity, vertical) * Time.deltaTime * Speed));
 
         // Camera
         float mouseX = Input.GetAxis("Mouse X");

@@ -5,7 +5,7 @@ using UnityEngine;
 public class Chunk : MonoBehaviour
 {
     public static readonly Vector3Int ChunkSize = new Vector3Int(16, 16, 16);
-    public static readonly int NumberVerticalChunks = 8;
+    public static readonly int NumberVerticalChunks = 4;
 
     public Vector3Int Index;
     public Block[,,] Voxels = new Block[ChunkSize.x, ChunkSize.y, ChunkSize.z];
@@ -13,6 +13,8 @@ public class Chunk : MonoBehaviour
     private ChunkRenderer ChunkRenderer;
 
     public bool Delete;
+    public bool Generated;
+    public bool AsyncFinished;
 
     private void Awake()
     {

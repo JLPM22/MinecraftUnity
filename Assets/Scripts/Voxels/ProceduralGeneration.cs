@@ -49,7 +49,11 @@ public static class ProceduralGeneration
             int[,] heightMap = new int[Chunk.ChunkSize.x, Chunk.ChunkSize.z];
             CreateHeightMap(chunk.Index.x, chunk.Index.z, heightMap);
             AssignHeightMap(chunk, heightMap);
+            chunk.Generated = true;
+            Thread.MemoryBarrier(); // Multithreding sync
             callback();
+            chunk.AsyncFinished = true;
+            Thread.MemoryBarrier(); // Multithreding sync
         }).Start();
     }
 
