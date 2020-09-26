@@ -276,15 +276,20 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1632305662517577624, guid: 1d20219dcd1dd0048abea0bf32a49e06,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 1632305663636719369, guid: 1d20219dcd1dd0048abea0bf32a49e06,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 25.2
+      value: 27
       objectReference: {fileID: 0}
     - target: {fileID: 1632305663636719369, guid: 1d20219dcd1dd0048abea0bf32a49e06,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.1
+      value: 300
       objectReference: {fileID: 0}
     - target: {fileID: 1632305663636719369, guid: 1d20219dcd1dd0048abea0bf32a49e06,
         type: 3}
@@ -336,10 +341,25 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1632305663636719370, guid: 1d20219dcd1dd0048abea0bf32a49e06,
+        type: 3}
+      propertyPath: RotationSpeed
+      value: 256
+      objectReference: {fileID: 0}
+    - target: {fileID: 1632305663636719370, guid: 1d20219dcd1dd0048abea0bf32a49e06,
+        type: 3}
+      propertyPath: JumpSpeed
+      value: 2.25
+      objectReference: {fileID: 0}
     - target: {fileID: 1632305663636719373, guid: 1d20219dcd1dd0048abea0bf32a49e06,
         type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 1632305663636719374, guid: 1d20219dcd1dd0048abea0bf32a49e06,
+        type: 3}
+      propertyPath: m_StepOffset
+      value: 0.3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1d20219dcd1dd0048abea0bf32a49e06, type: 3}

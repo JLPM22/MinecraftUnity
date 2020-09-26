@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
@@ -64,8 +65,7 @@ public class ChunkRenderer : MonoBehaviour
             {
                 Regenerate = false;
                 Regenerating = true;
-                Thread thread = new Thread(AsyncRegenerateMesh);
-                thread.Start();
+                ThreadPool.QueueUserWorkItem(new WaitCallback(AsyncRegenerateMesh), this);
             }
         }
     }
@@ -78,7 +78,12 @@ public class ChunkRenderer : MonoBehaviour
         }
     }
 
-    private void AsyncRegenerateMesh()
+    private static void AsyncRegenerateMesh(object renderer)
+    {
+        ((ChunkRenderer)renderer).InternalRegenerateMesh();
+    }
+
+    private void InternalRegenerateMesh()
     {
         // Clear structures
         Vertices.Clear();
@@ -94,8 +99,9 @@ public class ChunkRenderer : MonoBehaviour
             {
                 for (int x = 0; x < Chunk.ChunkSize.x; ++x)
                 {
+                    BlockInfo block = BlockInfo.Blocks[(int)Chunk.GetBlock(x, y, z)];
                     // Test if is visible the voxel itself, and if it's surrounded by opaque voxels
-                    if (Chunk.IsVisible(x, y, z) && IsOpaqueNotSurrounded(x, y, z)) DrawCube(x, y, z);
+                    if (block.Visible && IsOpaqueNotSurrounded(x, y, z)) DrawCube(x, y, z, block);
                 }
             }
         }
@@ -104,7 +110,7 @@ public class ChunkRenderer : MonoBehaviour
         RegenerationComplete = true;
     }
 
-    private void DrawCube(int x, int y, int z)
+    private void DrawCube(int x, int y, int z, BlockInfo block)
     {
         Vector3 offset = new Vector3(x, y, z);
 
@@ -115,7 +121,7 @@ public class ChunkRenderer : MonoBehaviour
             // Normals
             Normals.Add(CubeMesh.Normals[i]);
             // UVs
-            UVs.Add(CubeMesh.UVs[i]);
+            UVs.Add(block.TextureIDs[i >> 2] + CubeMesh.UVs[i]);
         }
         // Triangles
         for (int i = 0; i < CubeMesh.Triangles.Length; ++i)

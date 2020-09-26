@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour
 {
     public float Speed = 1.0f;
     public float RotationSpeed = 1.0f;
+    public float JumpSpeed = 1.0f;
 
     private CharacterController CharacterController;
 
@@ -30,6 +31,10 @@ public class PlayerController : MonoBehaviour
         if (!CharacterController.isGrounded)
         {
             FallVelocity += 9.81f * Time.deltaTime;
+        }
+        else if (CharacterController.isGrounded && Input.GetKey(KeyCode.Space)) // Jump
+        {
+            FallVelocity = -JumpSpeed;
         }
         else
         {
