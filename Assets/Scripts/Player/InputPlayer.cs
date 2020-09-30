@@ -4,15 +4,34 @@ using UnityEngine;
 
 public class InputPlayer : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    public float TimeBetweenClicks = 0.25f;
+
+    private Block CurrentSelectedBlock = Block.DIRT;
+    private RaycastPlayer RaycastPlayer;
+    private float LastClickTime;
+
+    private void Awake()
     {
-        
+        RaycastPlayer = GetComponent<RaycastPlayer>();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
+        if (RaycastPlayer.SelectedChunk == null || LastClickTime + TimeBetweenClicks > Time.time) return;
+
+        // Remove Block
+        if (Input.GetMouseButton(0)) // Left Click
+        {
+            Vector3Int voxel = RaycastPlayer.SelectedVoxel;
+            RaycastPlayer.SelectedChunk.SetBlock(voxel.x, voxel.y, voxel.z, Block.AIR);
+            LastClickTime = Time.time;
+        }
+        // Add Block
+        if (Input.GetMouseButton(1) && RaycastPlayer.SelectedNextChunk != null) // Right Click
+        {
+            Vector3Int voxel = RaycastPlayer.SelectedNextVoxel;
+            RaycastPlayer.SelectedChunk.SetBlock(voxel.x, voxel.y, voxel.z, CurrentSelectedBlock);
+            LastClickTime = Time.time;
+        }
     }
 }

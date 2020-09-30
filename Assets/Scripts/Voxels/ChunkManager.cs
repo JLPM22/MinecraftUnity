@@ -113,6 +113,7 @@ public class ChunkManager : MonoBehaviour
         Chunk c = newChunk.AddComponent<Chunk>();
         c.Index = index;
         ChunkRenderer renderer = newChunk.AddComponent<ChunkRenderer>();
+        c.SetChunkRenderer(renderer);
         newChunk.transform.position = Vector3.Scale(Chunk.ChunkSize, index) + new Vector3(0.5f, 0.5f, 0.5f);
         newChunk.transform.SetParent(transform, true); // Chunk is a child of ChunkManager
                                                        // Add to Dictionary

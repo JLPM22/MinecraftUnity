@@ -6,6 +6,7 @@ public class Chunk : MonoBehaviour
 {
     public static readonly Vector3Int ChunkSize = new Vector3Int(16, 16, 16);
     public static readonly int NumberVerticalChunks = 4;
+    //public static readonly Vector3Int[] DirectionToIncrement = new Vector3Int[] { Vector3Int.right, Vector3Int.left, Vector3Int.up, Vector3Int.down, new Vector3Int(0, 0, 1), new Vector3Int(0, 0, -1) };
 
     public Vector3Int Index;
     public Block[,,] Voxels = new Block[ChunkSize.x, ChunkSize.y, ChunkSize.z];
@@ -16,9 +17,9 @@ public class Chunk : MonoBehaviour
     public bool Generated;
     public bool AsyncFinished;
 
-    private void Awake()
+    public void SetChunkRenderer(ChunkRenderer chunkRenderer)
     {
-        ChunkRenderer = GetComponent<ChunkRenderer>();
+        ChunkRenderer = chunkRenderer;
     }
 
     public void SetBlock(int x, int y, int z, Block block)
@@ -54,7 +55,7 @@ public class Chunk : MonoBehaviour
 public enum Direction
 {
     RIGHT,
-    LET,
+    LEFT,
     TOP,
     BOTTOM,
     FORWARD,
