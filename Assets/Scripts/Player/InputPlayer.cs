@@ -17,6 +17,15 @@ public class InputPlayer : MonoBehaviour
 
     void Update()
     {
+        // Select Block
+        if (Input.GetKeyDown(KeyCode.Alpha1)) CurrentSelectedBlock = Block.STONE;
+        else if (Input.GetKeyDown(KeyCode.Alpha2)) CurrentSelectedBlock = Block.COBBLESTONE;
+        else if (Input.GetKeyDown(KeyCode.Alpha3)) CurrentSelectedBlock = Block.DIRT;
+        else if (Input.GetKeyDown(KeyCode.Alpha4)) CurrentSelectedBlock = Block.GRASS;
+        else if (Input.GetKeyDown(KeyCode.Alpha5)) CurrentSelectedBlock = Block.LOG;
+        else if (Input.GetKeyDown(KeyCode.Alpha6)) CurrentSelectedBlock = Block.WOOD;
+        else if (Input.GetKeyDown(KeyCode.Alpha7)) CurrentSelectedBlock = Block.LEAVES;
+
         if (RaycastPlayer.SelectedChunk == null || LastClickTime + TimeBetweenClicks > Time.time) return;
 
         // Remove Block

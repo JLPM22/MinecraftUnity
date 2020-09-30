@@ -49,6 +49,7 @@ public static class ProceduralGeneration
             int[,] heightMap = new int[Chunk.ChunkSize.x, Chunk.ChunkSize.z];
             CreateHeightMap(chunk.Index.x, chunk.Index.z, heightMap);
             AssignHeightMap(chunk, heightMap);
+            GenerateTrees(chunk, heightMap);
             chunk.Generated = true;
             Thread.MemoryBarrier(); // Multithreding sync
             callback();
@@ -131,6 +132,70 @@ public static class ProceduralGeneration
                         chunk.Voxels[x, y, z] = Block.STONE;
                 }
             }
+        }
+    }
+
+    private static void GenerateTrees(Chunk chunk, int[,] heightMap)
+    {
+        System.Random random = new System.Random(Seed + chunk.Index.x + chunk.Index.z);
+
+        const int numberTreesPerChunk = 3;
+        int numberTrees = random.Next(0, numberTreesPerChunk);
+
+        for (int i = 0; i < numberTrees; ++i)
+        {
+            int voxelX = random.Next(2, Chunk.ChunkSize.x - 3); // To avoid having to manage tree generation at the border of a chunk...
+            int voxelZ = random.Next(2, Chunk.ChunkSize.z - 3); // to be changed in the future
+
+            int height = heightMap[voxelX, voxelZ];
+
+            int chunkHeight = chunk.Index.y * Chunk.ChunkSize.y;
+            if (chunkHeight + Chunk.ChunkSize.y > height &&
+                chunkHeight <= height)
+            {
+                int voxelY = height - chunkHeight;
+                GenerateTree(chunk, new Vector3Int(voxelX, voxelY, voxelZ), random);
+            }
+        }
+    }
+
+    private static void GenerateTree(Chunk chunk, Vector3Int voxelPos, System.Random random)
+    {
+        int treeHeight = random.Next(4, 9);
+        int nextY = voxelPos.y;
+        for (int i = 0; i < treeHeight; ++i)
+        {
+            if (nextY >= Chunk.ChunkSize.y)
+            {
+                if (Chunk.ChunkSize.y + 1 == Chunk.NumberVerticalChunks) return;
+                Chunk c = ChunkManager.Instance.GetChunk(chunk.Index.x, chunk.Index.y + 1, chunk.Index.z);
+                // This should be improved (the following two whiles)... but it's ok for now :D
+                while (c == null) c = ChunkManager.Instance.GetChunk(chunk.Index.x, chunk.Index.y + 1, chunk.Index.z);
+                chunk = c;
+                while (!chunk.Generated) ;
+                nextY = 0;
+            }
+            // LOG
+            chunk.Voxels[voxelPos.x, nextY, voxelPos.z] = i == treeHeight - 1 ? Block.LEAVES : Block.LOG;
+            // LEAVES
+            if (i >= treeHeight - 4)
+            {
+                int radius = i < treeHeight - 2 ? 2 : 1;
+                for (int x = voxelPos.x - radius; x <= voxelPos.x + radius; ++x)
+                {
+                    for (int z = voxelPos.z - radius; z <= voxelPos.z + radius; ++z)
+                    {
+                        if (x == voxelPos.x && z == voxelPos.z) continue;
+                        if (((x == voxelPos.x - radius && z == voxelPos.z - radius) ||
+                             (x == voxelPos.x + radius && z == voxelPos.z + radius) ||
+                             (x == voxelPos.x + radius && z == voxelPos.z - radius) ||
+                             (x == voxelPos.x - radius && z == voxelPos.z + radius)) && random.Next(0, 10) > 4) continue; // remove some leaves
+                        chunk.Voxels[x, nextY, z] = Block.LEAVES;
+                    }
+                }
+            }
+            // INCREMENT
+            nextY += 1;
         }
     }
 }

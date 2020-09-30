@@ -58,7 +58,7 @@ public static class CubeMesh
     #endregion
 
     #region UVs
-    readonly static float Epsilon = 0.0001f;
+    readonly static float Epsilon = 0.001f;
     readonly static Vector2 _00 = new Vector2(Epsilon, Epsilon);
     readonly static Vector2 _10 = new Vector2(BlockInfo.TexStep - Epsilon, Epsilon);
     readonly static Vector2 _01 = new Vector2(Epsilon, BlockInfo.TexStep - Epsilon);
