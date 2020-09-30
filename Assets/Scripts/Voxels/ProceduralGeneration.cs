@@ -125,8 +125,10 @@ public static class ProceduralGeneration
                 {
                     if (startY + y == (heightMap[x, z] - 1))
                         chunk.Voxels[x, y, z] = Block.GRASS;
-                    else
+                    else if (startY + y >= (heightMap[x, z] - 3))
                         chunk.Voxels[x, y, z] = Block.DIRT;
+                    else
+                        chunk.Voxels[x, y, z] = Block.STONE;
                 }
             }
         }

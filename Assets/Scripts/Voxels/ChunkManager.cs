@@ -65,7 +65,9 @@ public class ChunkManager : MonoBehaviour
 
     public Chunk GetChunk(int x, int y, int z)
     {
-        return Chunks[new Vector3Int(x, y, z)];
+        if (Chunks.TryGetValue(new Vector3Int(x, y, z), out Chunk c))
+            return c;
+        return null;
     }
 
     private void RemoveOldChunks(int chunkX, int chunkZ)
@@ -111,9 +113,9 @@ public class ChunkManager : MonoBehaviour
         Chunk c = newChunk.AddComponent<Chunk>();
         c.Index = index;
         ChunkRenderer renderer = newChunk.AddComponent<ChunkRenderer>();
-        newChunk.transform.position = Vector3.Scale(Chunk.ChunkSize, index);
-        newChunk.transform.SetParent(transform); // Chunk is a child of ChunkManager
-                                                 // Add to Dictionary
+        newChunk.transform.position = Vector3.Scale(Chunk.ChunkSize, index) + new Vector3(0.5f, 0.5f, 0.5f);
+        newChunk.transform.SetParent(transform, true); // Chunk is a child of ChunkManager
+                                                       // Add to Dictionary
         Chunks.Add(index, c);
         // Procedural Generation & Mesh
         ProceduralGeneration.AsyncGenerateChunk(c, () => renderer.RegenerateMesh());

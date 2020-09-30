@@ -43,47 +43,37 @@ public class ChunkRenderer : MonoBehaviour
 
     private void LateUpdate()
     {
-        lock (RegenerateLock)
+        if (RegenerationComplete)
         {
-            if (RegenerationComplete)
-            {
-                if (LastSlowOperationFrame == Time.frameCount) return;
-                RegenerationComplete = false;
-                // Assign Vertices & Triangles to the Mesh
-                MeshFilter.sharedMesh.Clear();
-                MeshFilter.sharedMesh.SetVertices(Vertices);
-                MeshFilter.sharedMesh.SetNormals(Normals);
-                MeshFilter.sharedMesh.SetTriangles(Triangles, 0);
-                MeshFilter.sharedMesh.SetUVs(0, UVs);
-                MeshFilter.sharedMesh.RecalculateBounds();
-                if (MeshCollider != null) MeshCollider.sharedMesh = MeshFilter.sharedMesh;
-                LastSlowOperationFrame = Time.frameCount;
-            }
+            if (LastSlowOperationFrame == Time.frameCount) return;
+            RegenerationComplete = false;
+            // Assign Vertices & Triangles to the Mesh
+            MeshFilter.sharedMesh.Clear();
+            MeshFilter.sharedMesh.SetVertices(Vertices);
+            MeshFilter.sharedMesh.SetNormals(Normals);
+            MeshFilter.sharedMesh.SetTriangles(Triangles, 0);
+            MeshFilter.sharedMesh.SetUVs(0, UVs);
+            MeshFilter.sharedMesh.RecalculateBounds();
+            if (MeshCollider != null) MeshCollider.sharedMesh = MeshFilter.sharedMesh;
+            LastSlowOperationFrame = Time.frameCount;
+        }
 
-            // Regenerate
-            if (Regenerate && !Regenerating)
-            {
-                Regenerate = false;
-                Regenerating = true;
-                ThreadPool.QueueUserWorkItem(new WaitCallback(AsyncRegenerateMesh), this);
-            }
+        // Regenerate
+        if (Regenerate && !Regenerating)
+        {
+            Regenerate = false;
+            Regenerating = true;
+            AsyncChunkRenderer.Instance.TasksQueue.Enqueue(AsyncRegenerateMesh);
         }
     }
 
     public void RegenerateMesh()
     {
-        lock (RegenerateLock)
-        {
-            Regenerate = true;
-        }
+        Regenerate = true;
+        Thread.MemoryBarrier();
     }
 
-    private static void AsyncRegenerateMesh(object renderer)
-    {
-        ((ChunkRenderer)renderer).InternalRegenerateMesh();
-    }
-
-    private void InternalRegenerateMesh()
+    private void AsyncRegenerateMesh()
     {
         // Clear structures
         Vertices.Clear();
@@ -148,6 +138,8 @@ public class ChunkRenderer : MonoBehaviour
         {
             if (Chunk.Index.y == Chunk.NumberVerticalChunks - 1) return true;
             Chunk c = ChunkManager.Instance.GetChunk(Chunk.Index.x, Chunk.Index.y + 1, Chunk.Index.z);
+            // This should be improved (the following two whiles)... but it's ok for now :D
+            while (c == null) c = ChunkManager.Instance.GetChunk(Chunk.Index.x, Chunk.Index.y + 1, Chunk.Index.z);
             while (!c.Generated) ;
             if (!c.IsOpaque(x, 0, z) || !Chunk.IsOpaque(x, y - 1, z)) return true;
         }
@@ -155,6 +147,8 @@ public class ChunkRenderer : MonoBehaviour
         {
             if (Chunk.Index.y == 0) return true;
             Chunk c = ChunkManager.Instance.GetChunk(Chunk.Index.x, Chunk.Index.y - 1, Chunk.Index.z);
+            // This should be improved (the following two whiles)... but it's ok for now :D
+            while (c == null) c = ChunkManager.Instance.GetChunk(Chunk.Index.x, Chunk.Index.y - 1, Chunk.Index.z);
             while (!c.Generated) ;
             if (!c.IsOpaque(x, Chunk.ChunkSize.y - 1, z) || !Chunk.IsOpaque(x, y + 1, z)) return true;
         }
