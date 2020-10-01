@@ -139,8 +139,12 @@ public class ChunkRenderer : MonoBehaviour
             if (Chunk.Index.y == Chunk.NumberVerticalChunks - 1) return true;
             Chunk c = ChunkManager.Instance.GetChunk(Chunk.Index.x, Chunk.Index.y + 1, Chunk.Index.z);
             // This should be improved (the following two whiles)... but it's ok for now :D
-            while (c == null) c = ChunkManager.Instance.GetChunk(Chunk.Index.x, Chunk.Index.y + 1, Chunk.Index.z);
-            while (!c.Generated) ;
+            while (c == null)
+            {
+                Thread.Sleep(5);
+                c = ChunkManager.Instance.GetChunk(Chunk.Index.x, Chunk.Index.y + 1, Chunk.Index.z);
+            }
+            while (!c.Generated) Thread.Sleep(5); ;
             if (!c.IsOpaque(x, 0, z) || !Chunk.IsOpaque(x, y - 1, z)) return true;
         }
         else if (y - 1 < 0)
@@ -148,8 +152,12 @@ public class ChunkRenderer : MonoBehaviour
             if (Chunk.Index.y == 0) return true;
             Chunk c = ChunkManager.Instance.GetChunk(Chunk.Index.x, Chunk.Index.y - 1, Chunk.Index.z);
             // This should be improved (the following two whiles)... but it's ok for now :D
-            while (c == null) c = ChunkManager.Instance.GetChunk(Chunk.Index.x, Chunk.Index.y - 1, Chunk.Index.z);
-            while (!c.Generated) ;
+            while (c == null)
+            {
+                Thread.Sleep(5);
+                c = ChunkManager.Instance.GetChunk(Chunk.Index.x, Chunk.Index.y - 1, Chunk.Index.z);
+            }
+            while (!c.Generated) Thread.Sleep(5);
             if (!c.IsOpaque(x, Chunk.ChunkSize.y - 1, z) || !Chunk.IsOpaque(x, y + 1, z)) return true;
         }
         else if (!Chunk.IsOpaque(x, y + 1, z) ||

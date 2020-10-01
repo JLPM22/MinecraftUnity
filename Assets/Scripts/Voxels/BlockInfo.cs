@@ -28,14 +28,14 @@ public class BlockInfo
 
     public readonly static BlockInfo[] Blocks = new BlockInfo[]
     {
-        new BlockInfo(false, false, 0),       // AIR
-        new BlockInfo(true, true, 208),         // DIRT
-        new BlockInfo(true, true, 212, 208, 210), // GRASS
-        new BlockInfo(true, true, 242),          // COBBLESTONE
-        new BlockInfo(true, true, 240),          // STONE
-        new BlockInfo(true, true, 146, 146, 144), // LOG
-        new BlockInfo(true, true, 148),         // WOOD
-        new BlockInfo(true, false, 176),        // LEAVES
+        new BlockInfo(false, false, 0),           // AIR
+        new BlockInfo(true, true, 249),           // DIRT
+        new BlockInfo(true, true, 253, 249, 251), // GRASS
+        new BlockInfo(true, true, 242),           // COBBLESTONE
+        new BlockInfo(true, true, 240),           // STONE
+        new BlockInfo(true, true, 2, 2, 0),       // LOG
+        new BlockInfo(true, true, 4),             // WOOD
+        new BlockInfo(true, false, 255),          // LEAVES
     };
 
     public BlockInfo(bool visible, bool opaque, int texID)

@@ -39,9 +39,17 @@ public class AsyncChunkRenderer : MonoBehaviour
     private void OnDestroy()
     {
         Stop = true;
+        for (int i = 0; i < Threads.Length; ++i)
+        {
+            Threads[i].Abort();
+        }
     }
     private void OnApplicationQuit()
     {
         Stop = true;
+        for (int i = 0; i < Threads.Length; ++i)
+        {
+            Threads[i].Abort();
+        }
     }
 }

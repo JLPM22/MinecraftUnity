@@ -5,7 +5,7 @@ using UnityEngine;
 public class Chunk : MonoBehaviour
 {
     public static readonly Vector3Int ChunkSize = new Vector3Int(16, 16, 16);
-    public static readonly int NumberVerticalChunks = 4;
+    public static readonly int NumberVerticalChunks = 2;
     //public static readonly Vector3Int[] DirectionToIncrement = new Vector3Int[] { Vector3Int.right, Vector3Int.left, Vector3Int.up, Vector3Int.down, new Vector3Int(0, 0, 1), new Vector3Int(0, 0, -1) };
 
     public Vector3Int Index;

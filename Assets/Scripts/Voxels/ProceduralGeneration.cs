@@ -170,9 +170,13 @@ public static class ProceduralGeneration
                 if (Chunk.ChunkSize.y + 1 == Chunk.NumberVerticalChunks) return;
                 Chunk c = ChunkManager.Instance.GetChunk(chunk.Index.x, chunk.Index.y + 1, chunk.Index.z);
                 // This should be improved (the following two whiles)... but it's ok for now :D
-                while (c == null) c = ChunkManager.Instance.GetChunk(chunk.Index.x, chunk.Index.y + 1, chunk.Index.z);
+                while (c == null)
+                {
+                    Thread.Sleep(5);
+                    c = ChunkManager.Instance.GetChunk(chunk.Index.x, chunk.Index.y + 1, chunk.Index.z);
+                }
                 chunk = c;
-                while (!chunk.Generated) ;
+                while (!chunk.Generated) Thread.Sleep(5);
                 nextY = 0;
             }
             // LOG
