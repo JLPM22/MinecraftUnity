@@ -39,7 +39,7 @@ public class InputPlayer : MonoBehaviour
         if (Input.GetMouseButton(1) && RaycastPlayer.SelectedNextChunk != null) // Right Click
         {
             Vector3Int voxel = RaycastPlayer.SelectedNextVoxel;
-            RaycastPlayer.SelectedChunk.SetBlock(voxel.x, voxel.y, voxel.z, CurrentSelectedBlock);
+            RaycastPlayer.SelectedNextChunk.SetBlock(voxel.x, voxel.y, voxel.z, CurrentSelectedBlock);
             LastClickTime = Time.time;
         }
     }
