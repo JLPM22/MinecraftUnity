@@ -144,6 +144,7 @@ public class ChunkRenderer : MonoBehaviour
                 Thread.Sleep(5);
                 c = ChunkManager.Instance.GetChunk(Chunk.Index.x, Chunk.Index.y + 1, Chunk.Index.z);
             }
+            if (c == null) return false;
             while (!c.Generated) Thread.Sleep(5); ;
             if (!c.IsOpaque(x, 0, z) || !Chunk.IsOpaque(x, y - 1, z)) return true;
         }
@@ -157,6 +158,7 @@ public class ChunkRenderer : MonoBehaviour
                 Thread.Sleep(5);
                 c = ChunkManager.Instance.GetChunk(Chunk.Index.x, Chunk.Index.y - 1, Chunk.Index.z);
             }
+            if (c == null) return false;
             while (!c.Generated) Thread.Sleep(5);
             if (!c.IsOpaque(x, Chunk.ChunkSize.y - 1, z) || !Chunk.IsOpaque(x, y + 1, z)) return true;
         }

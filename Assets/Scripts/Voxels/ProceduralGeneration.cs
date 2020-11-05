@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using UnityEngine;
 
@@ -170,13 +171,16 @@ public static class ProceduralGeneration
                 if (Chunk.ChunkSize.y + 1 == Chunk.NumberVerticalChunks) return;
                 Chunk c = ChunkManager.Instance.GetChunk(chunk.Index.x, chunk.Index.y + 1, chunk.Index.z);
                 // This should be improved (the following two whiles)... but it's ok for now :D
-                while (c == null)
+                Stopwatch sw = Stopwatch.StartNew();
+                while (c == null && sw.ElapsedMilliseconds < 1000)
                 {
                     Thread.Sleep(5);
                     c = ChunkManager.Instance.GetChunk(chunk.Index.x, chunk.Index.y + 1, chunk.Index.z);
                 }
+                if (c == null) continue;
                 chunk = c;
-                while (!chunk.Generated) Thread.Sleep(5);
+                sw = Stopwatch.StartNew();
+                while (!chunk.Generated && sw.ElapsedMilliseconds < 1000) Thread.Sleep(5);
                 nextY = 0;
             }
             // LOG
